@@ -87,7 +87,7 @@ public class Perusahaan {
 
     public void tampilkanSemuaKaryawan() {
         if (daftarKaryawan.size() == 0) {
-            System.out.println("Belum ada data karyawan.");
+            System.out.println("Data masih kosong.");
             return;
         }
 

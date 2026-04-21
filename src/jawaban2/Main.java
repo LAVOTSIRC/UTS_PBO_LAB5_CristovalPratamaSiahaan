@@ -12,22 +12,120 @@ public class Main {
         try {
             int totalKendaraan = 0;
             double totalSemuaBiaya = 0;
+            String tambahLagi = "n";
 
             System.out.println("======== Selamat Datang di ParkirChan ========\n");
 
-            while (true) {
-                String jenisKendaraan = inputJenisKendaraanValid(scanner);
+            do {
+                String jenisKendaraanInput;
+                boolean jenisValid;
+                do {
+                    System.out.print("Masukkan jenis kendaraan (Motor/Mobil/Truk) : ");
+                    jenisKendaraanInput = scanner.nextLine().trim();
+
+                    jenisValid = jenisKendaraanInput.equalsIgnoreCase("Motor")
+                        || jenisKendaraanInput.equalsIgnoreCase("Mobil")
+                        || jenisKendaraanInput.equalsIgnoreCase("Truk");
+
+                    if (!jenisValid) {
+                        System.out.println("Jenis kendaraan tidak valid.");
+                    }
+                } while (!jenisValid);
+
+                String jenisKendaraan;
+                if (jenisKendaraanInput.equalsIgnoreCase("Motor")) {
+                    jenisKendaraan = "Motor";
+                } else if (jenisKendaraanInput.equalsIgnoreCase("Mobil")) {
+                    jenisKendaraan = "Mobil";
+                } else {
+                    jenisKendaraan = "Truk";
+                }
+
                 Kendaraan kendaraan = new Kendaraan(jenisKendaraan);
 
-                String tipeDurasi = inputTipeDurasiValid(scanner);
+                String tipeDurasiInput;
+                boolean tipeDurasiValid;
+                do {
+                    System.out.print("Masukkan tipe durasi (Manual/Waktu) : ");
+                    tipeDurasiInput = scanner.nextLine().trim();
+
+                    tipeDurasiValid = tipeDurasiInput.equalsIgnoreCase("Manual")
+                        || tipeDurasiInput.equalsIgnoreCase("Waktu")
+                        || tipeDurasiInput.equalsIgnoreCase("Time");
+
+                    if (!tipeDurasiValid) {
+                        System.out.println("Pilihan durasi tidak valid.");
+                    }
+                } while (!tipeDurasiValid);
+
+                String tipeDurasi;
+                if (tipeDurasiInput.equalsIgnoreCase("Manual")) {
+                    tipeDurasi = "Manual";
+                } else {
+                    tipeDurasi = "Waktu";
+                }
+
                 double totalBiaya;
 
-                if (tipeDurasi.equalsIgnoreCase("Manual")) {
-                    int durasiManual = inputDurasiManualValid(scanner);
+                if (tipeDurasi.equals("Manual")) {
+                    int durasiManual = 0;
+                    do {
+                        System.out.print("Masukkan durasi parkir (jam) : ");
+
+                        if (scanner.hasNextInt()) {
+                            durasiManual = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (durasiManual <= 0) {
+                                System.out.println("Durasi harus lebih dari 0.");
+                            }
+                        } else {
+                            System.out.println("Durasi harus berupa angka.");
+                            scanner.nextLine();
+                            durasiManual = 0;
+                        }
+                    } while (durasiManual <= 0);
+
                     totalBiaya = kendaraan.hitungBiayaParkir(durasiManual);
                 } else {
-                    int jamMasuk = inputJamValid(scanner, "Masukkan jam masuk  : ");
-                    int jamKeluar = inputJamKeluarValid(scanner, jamMasuk);
+                    int jamMasuk = -1;
+                    do {
+                        System.out.print("Masukkan jam masuk  : ");
+
+                        if (scanner.hasNextInt()) {
+                            jamMasuk = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (jamMasuk < 0 || jamMasuk > 23) {
+                                System.out.println("Jam harus di antara 0 sampai 23.");
+                            }
+                        } else {
+                            System.out.println("Jam harus berupa angka.");
+                            scanner.nextLine();
+                            jamMasuk = -1;
+                        }
+                    } while (jamMasuk < 0 || jamMasuk > 23);
+
+                    int jamKeluar = -1;
+                    do {
+                        System.out.print("Masukkan jam keluar : ");
+
+                        if (scanner.hasNextInt()) {
+                            jamKeluar = scanner.nextInt();
+                            scanner.nextLine();
+
+                            if (jamKeluar < 0 || jamKeluar > 23) {
+                                System.out.println("Jam harus di antara 0 sampai 23.");
+                            } else if (jamKeluar <= jamMasuk) {
+                                System.out.println("Jam keluar harus lebih besar dari jam masuk.");
+                            }
+                        } else {
+                            System.out.println("Jam harus berupa angka.");
+                            scanner.nextLine();
+                            jamKeluar = -1;
+                        }
+                    } while (jamKeluar < 0 || jamKeluar > 23 || jamKeluar <= jamMasuk);
+
                     totalBiaya = kendaraan.hitungBiayaParkir(jamMasuk, jamKeluar);
                 }
 
@@ -41,12 +139,17 @@ public class Main {
                 totalKendaraan++;
                 totalSemuaBiaya += totalBiaya;
 
-                if (!lanjutInput(scanner)) {
-                    break;
-                }
+                do {
+                    System.out.print("\nTambah kendaraan lagi? (y/n): ");
+                    tambahLagi = scanner.nextLine().trim();
+
+                    if (!tambahLagi.equalsIgnoreCase("y") && !tambahLagi.equalsIgnoreCase("n")) {
+                        System.out.println("Masukkan hanya y atau n.");
+                    }
+                } while (!tambahLagi.equalsIgnoreCase("y") && !tambahLagi.equalsIgnoreCase("n"));
 
                 System.out.println();
-            }
+            } while (tambahLagi.equalsIgnoreCase("y"));
 
             System.out.println("\n======== LAPORAN AKHIR ========");
             System.out.println("Total Kendaraan      : " + totalKendaraan);
@@ -58,107 +161,6 @@ public class Main {
             System.out.println("Terjadi kesalahan saat menjalankan program: " + exception.getMessage());
         } finally {
             scanner.close();
-        }
-    }
-
-    // Validasi agar jenis kendaraan hanya motor, mobil, atau truk
-    public static String inputJenisKendaraanValid(Scanner scanner) {
-        while (true) {
-            System.out.print("Masukkan jenis kendaraan (Motor/Mobil/Truk) : ");
-            String input = scanner.nextLine().trim();
-
-            if (input.equalsIgnoreCase("Motor") || input.equalsIgnoreCase("Mobil") || input.equalsIgnoreCase("Truk")) {
-                if (input.equalsIgnoreCase("Motor")) {
-                    return "Motor";
-                } else if (input.equalsIgnoreCase("Mobil")) {
-                    return "Mobil";
-                } else {
-                    return "Truk";
-                }
-            }
-
-            System.out.println("Jenis kendaraan tidak valid.");
-        }
-    }
-
-    // Validasi cara input durasi: manual atau time
-    public static String inputTipeDurasiValid(Scanner scanner) {
-        while (true) {
-            System.out.print("Masukkan tipe durasi (Manual/Waktu) : ");
-            String input = scanner.nextLine().trim();
-
-            if (input.equalsIgnoreCase("Manual")) {
-                return "Manual";
-            }
-
-            if (input.equalsIgnoreCase("Waktu") || input.equalsIgnoreCase("Time")) {
-                return "Waktu";
-            }
-
-            System.out.println("Pilihan durasi tidak valid.");
-        }
-    }
-
-    // Validasi durasi manual harus angka dan > 0
-    public static int inputDurasiManualValid(Scanner scanner) {
-        while (true) {
-            System.out.print("Masukkan durasi parkir (jam) : ");
-            String input = scanner.nextLine();
-
-            try {
-                int durasi = Integer.parseInt(input);
-                if (durasi > 0) {
-                    return durasi;
-                }
-                System.out.println("Durasi harus lebih dari 0.");
-            } catch (NumberFormatException numberFormatException) {
-                System.out.println("Durasi harus berupa angka.");
-            }
-        }
-    }
-
-    // Validasi jam harus 0 sampai 23
-    public static int inputJamValid(Scanner scanner, String pesan) {
-        while (true) {
-            System.out.print(pesan);
-            String input = scanner.nextLine();
-
-            try {
-                int jam = Integer.parseInt(input);
-                if (jam >= 0 && jam <= 23) {
-                    return jam;
-                }
-                System.out.println("Jam harus di antara 0 sampai 23.");
-            } catch (NumberFormatException numberFormatException) {
-                System.out.println("Jam harus berupa angka.");
-            }
-        }
-    }
-
-    // Jam keluar harus lebih besar dari jam masuk
-    public static int inputJamKeluarValid(Scanner scanner, int jamMasuk) {
-        while (true) {
-            int jamKeluar = inputJamValid(scanner, "Masukkan jam keluar : ");
-            if (jamKeluar > jamMasuk) {
-                return jamKeluar;
-            }
-
-            System.out.println("Jam keluar harus lebih besar dari jam masuk.");
-        }
-    }
-
-    public static boolean lanjutInput(Scanner scanner) {
-        while (true) {
-            System.out.print("\nTambah kendaraan lagi? (y/n): ");
-            String input = scanner.nextLine().trim();
-
-            if (input.equalsIgnoreCase("y")) {
-                return true;
-            } else if (input.equalsIgnoreCase("n")) {
-                return false;
-            }
-
-            System.out.println("Masukkan hanya y atau n.");
         }
     }
 

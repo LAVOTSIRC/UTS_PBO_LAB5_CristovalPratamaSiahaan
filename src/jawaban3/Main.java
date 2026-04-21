@@ -8,28 +8,46 @@ public class Main {
 
         try {
             LotreBoard lotreBoard = new LotreBoard();
+            boolean permainanBerjalan;
 
             System.out.println("Selamat datang di E-Lottery Gosok");
             lotreBoard.displayBoard();
 
-            while (!lotreBoard.isGameOver()) {
-                if (!scanner.hasNextLine()) {
-                    System.out.println("Input dihentikan. Permainan selesai.");
-                    break;
-                }
+            do {
+                int row = -1;
+                int col = -1;
+                boolean inputValid;
 
-                int[] tebakan = inputTebakan(scanner);
-                int row = tebakan[0];
-                int col = tebakan[1];
+                do {
+                    inputValid = true;
+                    System.out.print("Masukkan tebakan anda (baris dan kolom) : ");
 
-                if (!lotreBoard.isValidPosisi(row, col)) {
-                    System.out.println("Posisi tidak valid. Baris 0-3 dan kolom 0-4.");
-                    continue;
-                }
+                    if (scanner.hasNextInt()) {
+                        row = scanner.nextInt();
+
+                        if (scanner.hasNextInt()) {
+                            col = scanner.nextInt();
+                        } else {
+                            inputValid = false;
+                            System.out.println("Input harus 2 angka. Contoh: 2 4");
+                        }
+                    } else {
+                        inputValid = false;
+                        System.out.println("Input harus 2 angka. Contoh: 2 4");
+                    }
+
+                    scanner.nextLine();
+
+                    if (inputValid && !lotreBoard.isValidPosisi(row, col)) {
+                        inputValid = false;
+                        System.out.println("Posisi tidak valid. Baris 0-3 dan kolom 0-4.");
+                    }
+                } while (!inputValid);
 
                 lotreBoard.guess(row, col);
                 lotreBoard.displayBoard();
-            }
+                permainanBerjalan = !lotreBoard.isGameOver();
+            } while (permainanBerjalan);
 
             if (lotreBoard.isMenang()) {
                 System.out.println("Selamat, anda menang!");
@@ -40,28 +58,6 @@ public class Main {
             System.out.println("Terjadi kesalahan saat menjalankan permainan: " + exception.getMessage());
         } finally {
             scanner.close();
-        }
-    }
-
-    // Membaca input baris dan kolom dari satu baris teks
-    public static int[] inputTebakan(Scanner scanner) {
-        while (true) {
-            System.out.print("Masukkan tebakan anda (baris dan kolom) : ");
-            String input = scanner.nextLine();
-            String[] bagian = input.trim().split("\\s+");
-
-            if (bagian.length != 2) {
-                System.out.println("Input harus 2 angka. Contoh: 2 4");
-                continue;
-            }
-
-            try {
-                int row = Integer.parseInt(bagian[0]);
-                int col = Integer.parseInt(bagian[1]);
-                return new int[]{row, col};
-            } catch (NumberFormatException numberFormatException) {
-                System.out.println("Input harus berupa angka.");
-            }
         }
     }
 }
